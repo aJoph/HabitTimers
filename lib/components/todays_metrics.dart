@@ -8,12 +8,13 @@ class TodaysMetrics extends StatelessWidget {
 
   /// How to display.
   final TimeUnits units;
-  const TodaysMetrics(
-      {super.key,
-      required this.seconds,
-      required this.targetSeconds,
-      this.units = TimeUnits.minute,
-      this.backgroundColor});
+  const TodaysMetrics({
+    super.key,
+    required this.seconds,
+    required this.targetSeconds,
+    this.units = TimeUnits.minute,
+    this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,8 @@ class TodaysMetrics extends StatelessWidget {
         width: 4,
       ),
     );
+
+    final percentageString = "${(seconds / targetSeconds).toStringAsFixed(0)}%";
     return SizedBox(
       height: 100,
       child: Row(
@@ -74,7 +77,19 @@ class TodaysMetrics extends StatelessWidget {
                 style: typography.labelLarge,
               ),
               const SizedBox(height: 16),
-              Text("${(seconds / targetSeconds).toStringAsFixed(0)}%")
+              Stack(alignment: Alignment.center, children: [
+                Text(
+                  percentageString,
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.labelSmall,
+                ),
+                CircularProgressIndicator(
+                  semanticsLabel: "Progress in habit.",
+                  semanticsValue: percentageString,
+                  value: seconds / targetSeconds,
+                  backgroundColor: Colors.green,
+                ),
+              ]),
             ],
           )
         ],

@@ -1,60 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:habit_timers/components/todays_metrics.dart';
 import 'package:habit_timers/data/habit.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:habit_timers/definitions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class TweenedColoredCard extends HookConsumerWidget {
-  final Widget child;
-  final Duration duration;
-  final Color startColor;
-  final Color endColor;
-  final Curve curve;
-
-  /// The animation of color begins the instant shouldPlay == [true]
-  final ValueNotifier<bool> shouldPlay;
-  const TweenedColoredCard({
-    super.key,
-    required this.duration,
-    required this.child,
-    required this.startColor,
-    required this.endColor,
-    this.curve = Curves.linear,
-    required this.shouldPlay,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ValueListenableBuilder(
-      valueListenable: shouldPlay,
-      child: child,
-      builder: (context, shouldTransitionColor, child) {
-        if (shouldTransitionColor) {
-          return TweenAnimationBuilder(
-            tween: ColorTween(
-              begin: startColor,
-              end: endColor,
-            ),
-            curve: curve,
-            duration: duration,
-            builder: (context, value, child) {
-              return Card(
-                color: value,
-                child: this.child,
-              );
-            },
-          );
-        } else {
-          return Card(
-            color: startColor,
-            child: this.child,
-          );
-        }
-      },
-    );
-  }
-}
+import '../pages/habit_timer_page.dart';
 
 class HabitCard extends HookConsumerWidget {
   final Habit data;
@@ -65,14 +15,7 @@ class HabitCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isActive = useState(false);
-
-    return TweenedColoredCard(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-      startColor: context.colorScheme.background,
-      endColor: Colors.blue,
-      shouldPlay: isActive,
+    return Card(
       child: SizedBox(
         width: double.infinity,
         child: Padding(
@@ -90,15 +33,17 @@ class HabitCard extends HookConsumerWidget {
                         style: context.textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      Text(data.description,
-                          style: context.textTheme.bodyMedium)
+                      Text(
+                        data.description,
+                        style: context.textTheme.bodyMedium,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                      )
                     ],
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      isActive.value = !isActive.value;
-                    },
-                    child: Text(isActive.value ? "Stop timer" : "Start timer"),
+                    onPressed: () => onPressedOpen(context),
+                    child: const Text("Open"),
                   ),
                 ],
               ),
@@ -112,5 +57,13 @@ class HabitCard extends HookConsumerWidget {
         ),
       ),
     );
+  }
+
+  void onPressedOpen(BuildContext context) {
+    context.navigator.push<void>(MaterialPageRoute(
+      builder: (context) {
+        return HabitTimerPage(data);
+      },
+    ));
   }
 }

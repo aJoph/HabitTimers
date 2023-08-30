@@ -1,13 +1,14 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:habit_timers/components/habit_card.dart';
+import 'package:habit_timers/components/habits_feed.dart';
 import 'package:habit_timers/components/todays_metrics.dart';
 import 'package:habit_timers/data/habit.dart';
 import 'package:habit_timers/definitions.dart';
-import 'package:habit_timers/providers/habits_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+
+import '../components/add_habit_button.dart';
 
 class HabitsPage extends HookConsumerWidget {
   const HabitsPage({
@@ -16,7 +17,7 @@ class HabitsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
+    return ListView(
       children: [
         Material(
           borderRadius: const BorderRadius.only(
@@ -43,48 +44,16 @@ class HabitsPage extends HookConsumerWidget {
         Text(
           "Habits",
           style: context.textTheme.headlineSmall,
+          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
         const SizedBox(
-          height: 200,
+          height: 400,
           child: HabitsFeed(),
         ),
         const SizedBox(height: 8),
         const AddHabitButton(),
       ],
-    );
-  }
-}
-
-class AddHabitButton extends HookConsumerWidget {
-  const AddHabitButton({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      width: 200,
-      height: 200,
-      child: ElevatedButton(
-        onPressed: () {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AddHabitDialog();
-              }).then((value) => switch (
-                  value) {
-                Habit toAdd =>
-                  ref.read(habitsProvider.notifier).addHabit(toAdd),
-                _ => null
-              });
-        },
-        style: const ButtonStyle(
-          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20)))),
-        ),
-        child: const Text("+"),
-      ),
     );
   }
 }
@@ -218,40 +187,5 @@ class AddHabitDialog extends HookConsumerWidget {
             ],
           ),
         ));
-  }
-}
-
-class HabitsFeed extends HookConsumerWidget {
-  const HabitsFeed({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final habits = ref.watch(habitsProvider);
-
-    if (habits.isEmpty) {
-      return Container(
-        width: double.infinity,
-        color: context.colorScheme.errorContainer,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "No habits to display!",
-              style: context.textTheme.displaySmall,
-            ),
-            Text("Add one below", style: context.textTheme.bodyLarge)
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: habits.length,
-      itemBuilder: (context, i) {
-        return HabitCard(data: habits[i]);
-      },
-    );
   }
 }
